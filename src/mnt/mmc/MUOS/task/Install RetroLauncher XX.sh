@@ -29,13 +29,13 @@ DATE=$(date +%Y-%m-%d)
 RL_DIR=/home/muos/retrolauncherxx
 
 if [ -e "$RL_DIR/installed" ]; then
-	echo "RetroLauncher XX is already installed!"
+	echo "RetroLauncher XX is already installed!" > /tmp/muxlog_info
 	ERRORNO=1
 else
 	echo "Backing up startup script" > /tmp/muxlog_info
 	cp /opt/muos/script/system/startup.sh /opt/muos/script/system/startup.sh.bak || ERRORNO=2
 
-	if [ -n "$ERRORNO" ] then
+	if [ -n "$ERRORNO" ]; then
 		echo "ERROR: Failed to create backup" > /tmp/muxlog_info
 	else
 		echo "Modifying startup script to install on next boot" > /tmp/muxlog_info

@@ -159,7 +159,7 @@ if [ ! -e "$RL_DIR/installed" ] && [ -d "$RL_DIR" ]; then
 		cp -f "$RL_DIR/launch.sh" "$SCRIPT_DIR/mux/launch.sh"
 		cp -f "$RL_DIR/lr-general.sh" "$SCRIPT_DIR/launch/lr-general.sh"
 		cp -f "$RL_DIR/muxgentweak" "$BIN_DIR/muxgentweak"
-		rm "$RL_DIR/frontend.sh" "$RL_DIR/launch.sh" "$RL_DIR/lr-general.sh" "$RL_DIR/startup.sh" "$RL_DIR/muxgentweak"
+		rm "$RL_DIR/frontend.sh" "$RL_DIR/launch.sh" "$RL_DIR/lr-general.sh" "$RL_DIR/startup.sh" "$RL_DIR/muxtweakgen"
 
 		touch "$RL_DIR/installed"
 	fi

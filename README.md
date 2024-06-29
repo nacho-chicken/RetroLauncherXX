@@ -9,7 +9,8 @@ I've grown very used to its... eccentric UI choices, and I quite like its
 wealth of customization options and how freely it exposes them to the user.
 
 Most custom firmware for retro emulation handhelds nowadays focus on
-creating their own UI or porting a more general-user-friendly frontend like EmulationStation. On the other hand, there are others like myself that are
+creating their own UI or porting a more general-user-friendly frontend like
+EmulationStation. On the other hand, there are others like myself that are
 more than satisfied staying in our finely-tuned RetroArch config instead
 of using another UI that may obfuscate RA's settings or simply lack desired
 features.
@@ -24,10 +25,10 @@ such as PortMaster ports or non-Libretro emulators such as PPSSPP.
 ---
 
 ## Before Installing
-Please read `installinfo.txt` in order to determine whether your device
+Please read the release notes in order to determine whether your device
 and version of muOS is compatible.
 
-If you download the source, `installinfo.txt` instead includes information
+If you download the source, `sourceinfo.txt` instead includes information
 about which muOS commits these files were branched from.
 
 Versions of RetroLauncher XX in the Releases tab are designed for stable

@@ -1,0 +1,25 @@
+Because code is taken from two separate repos, I have chosen to only
+track the files that need modifications.
+
+Code is branched from the following repos and commits:
+
+muxtweakgen/main.c, muxtweakgen/ui/ui_scrTweakGeneral.c:
+https://github.com/MustardOS/frontend/
+233d7279e17dc7f8ebd5331ce768ea15f029b960
+
+script/mux/frontend.sh, script/mux/launch.sh, script/launch/lr-general.sh, script/system/startup.sh:
+https://github.com/MustardOS/internals/
+2f6207aa92ddfba99ca19db9521afbdab3d78578
+
+Build instructions:
+
+1) Compile muxtweakgen
+Only muxtweakgen needs building, since the other files are bash script files.
+- Clone the frontend repo listed above
+- Checkout the branch specified
+- Replace the muxtweakgen files from the cloned repo with the altered ones from this repo
+- Build muxtweakgen as normal
+
+2) Place the compiled muxtweakgen binary, as well as all the script files into home/muos/retrolauncherxx/
+
+3) Compress the included mnt and home directories into a .zip file named "RetroLauncher XX.zip"

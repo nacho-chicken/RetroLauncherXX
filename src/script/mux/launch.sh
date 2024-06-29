@@ -1,12 +1,13 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/device.sh
+. /opt/muos/script/var/device/screen.sh
+. /opt/muos/script/var/device/storage.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+. /opt/muos/script/var/global/setting_advanced.sh
+. /opt/muos/script/var/global/setting_general.sh
 
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
@@ -15,83 +16,81 @@ RA_BOOT=/tmp/ra_boot
 SUSPEND_APP=muxplore
 
 GPTOKEYB_BIN=gptokeyb2
-GPTOKEYB_DIR="/$STORE_ROM/MUOS/emulator/gptokeyb"
+GPTOKEYB_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb"
 GPTOKEYB_CONTROLLERCONFIG="/usr/lib/gamecontrollerdb.txt"
-GPTOKEYB_CONFDIR=/opt/muos/config/gptokeyb
+GPTOKEYB_CONFDIR="/opt/muos/config/gptokeyb"
 
 export EVSIEVE_BIN=evsieve
-export EVSIEVE_DIR=/opt/muos/bin
-export EVSIEVE_CONFDIR=/opt/muos/config/evsieve
+export EVSIEVE_DIR="/opt/muos/bin"
+export EVSIEVE_CONFDIR="/opt/muos/config/evsieve"
 
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 ROM_LAST=/tmp/rom_last
 
-LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
-if [ "$LOCK" -eq 1 ]; then
+if [ "$GC_ADV_LOCK" -eq 1 ]; then
 	nice --20 /opt/muos/extra/muxpass -t launch
 	if [ "$?" = 2 ]; then
 		rm "$ROM_GO"
-		echo explore > "$ACT_GO"
+		echo explore >"$ACT_GO"
 		exit
 	fi
 fi
 
 pkill -STOP "$SUSPEND_APP"
 
-STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
-
 NAME=$(sed -n '1p' "$ROM_GO")
-CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
-R_DIR=$(sed -n '5p' "$ROM_GO")$(sed -n '6p' "$ROM_GO")
-ROM="$R_DIR"/$(sed -n '7p' "$ROM_GO")
 
 if [ -e "$RA_BOOT" ] && [ "$NAME" = __DONTNAMEYOURROMTHIS_RA_BOOT ]; then
 	CORE=nocore
+	ROM=norom
 else
-	cat "$ROM_GO" > "$ROM_LAST"
+	CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
+	R_DIR=$(sed -n '5p' "$ROM_GO")$(sed -n '6p' "$ROM_GO")
+	ROM="$R_DIR"/$(sed -n '7p' "$ROM_GO")
+
+	cat "$ROM_GO" >"$ROM_LAST"
 fi
+
 rm "$ROM_GO"
 
 if [ -f "$GPTOKEYB_CONFDIR/$CORE.gptk" ]; then
 	SDL_GAMECONTROLLERCONFIG_FILE="$GPTOKEYB_CONTROLLERCONFIG" \
-	"$GPTOKEYB_DIR/$GPTOKEYB_BIN" -c "$GPTOKEYB_CONFDIR/$CORE.gptk" &
+		"$GPTOKEYB_DIR/$GPTOKEYB_BIN" -c "$GPTOKEYB_CONFDIR/$CORE.gptk" &
 fi
 
 if [ -f "$EVSIEVE_CONFDIR/$CORE.evs.sh" ]; then
 	"$EVSIEVE_CONFDIR/$CORE.evs.sh"
 fi
 
-if pgrep -f "playbgm.sh" > /dev/null; then
-	killall -q "playbgm.sh"
-	killall -q "mp3play"
+if pgrep -f "playbgm.sh" >/dev/null; then
+	killall -q "playbgm.sh" "mp3play"
 fi
 
-if pgrep -f "muplay" > /dev/null; then
-	kill -9 "muplay"
+if pgrep -f "muplay" >/dev/null; then
+	killall -q "muplay"
 	rm "/tmp/muplay_pipe"
 fi
 
-LED=$(parse_ini "$CONFIG" "settings.advanced" "led")
-echo "$LED" > "$(parse_ini "$DEVICE_CONFIG" "device" "led")"
-echo "$LED" > /tmp/work_led_state
+echo "$GC_ADV_LED" >"$DC_DEV_LED"
+echo "$GC_ADV_LED" >/tmp/work_led_state
 
-cat "$ROM_LAST" > "$LAST_PLAY"
+cat "$ROM_LAST" >"$LAST_PLAY"
 
 # External Script
 if [ "$CORE" = external ]; then
 	/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
 # Amiberry External
 elif [ "$CORE" = ext-amiberry ]; then
-    	/opt/muos/script/launch/ext-amiberry.sh "$NAME" "$CORE" "$ROM"
+	/opt/muos/script/launch/ext-amiberry.sh "$NAME" "$CORE" "$ROM"
 # Flycast External
 elif [ "$CORE" = ext-flycast ]; then
-    	/opt/muos/script/launch/ext-flycast.sh "$NAME" "$CORE" "$ROM"
+	/opt/muos/script/launch/ext-flycast.sh "$NAME" "$CORE" "$ROM"
 # Video Player (ffplay)
 elif [ "$CORE" = ext-ffplay ]; then
-        /opt/muos/script/launch/ext-ffplay.sh "$NAME" "$CORE" "$ROM"
+	/opt/muos/script/launch/ext-ffplay.sh "$NAME" "$CORE" "$ROM"
 # PPSSPP External
 elif [ "$CORE" = ext-ppsspp ]; then
-    	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
+	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
 # PICO-8 External
 elif [ "$CORE" = ext-pico8 ]; then
 	/opt/muos/script/launch/ext-pico8.sh "$NAME" "$CORE" "$ROM"
@@ -100,7 +99,7 @@ elif [ "$CORE" = ext-drastic ]; then
 	/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
 # DraStic External - Steward
 elif [ "$CORE" = ext-drastic-steward ]; then
-        /opt/muos/script/launch/ext-drastic-steward.sh "$NAME" "$CORE" "$ROM"
+	/opt/muos/script/launch/ext-drastic-steward.sh "$NAME" "$CORE" "$ROM"
 # Mupen64Plus External
 elif [ "${CORE#ext-mupen64plus}" != "$CORE" ]; then
 	/opt/muos/script/launch/ext-mupen64plus.sh "$NAME" "$CORE" "$ROM"
@@ -123,34 +122,32 @@ elif [ "$CORE" = easyrpg_libretro.so ]; then
 elif [ "$CORE" = nxengine_libretro.so ]; then
 	/opt/muos/script/launch/lr-nxengine.sh "$NAME" "$CORE" "$ROM"
 # Standard Libretro
-elif [ "$CORE" = nocore ]; then
-	/opt/muos/script/launch/lr-general.sh
 else
 	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 fi
 
-echo 1 > "$(parse_ini "$DEVICE_CONFIG" "device" "led")"
-echo 1 > /tmp/work_led_state
+echo 1 >"$DC_DEV_LED"
+echo 1 >/tmp/work_led_state
 
-echo explore > "$ACT_GO"
+echo explore >"$ACT_GO"
 
 # Do it twice, it's just as nice!
-cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device")" 2>/dev/null
-cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device")" 2>/dev/null
+cat /dev/zero >"$DC_SCR_DEVICE" 2>/dev/null
+cat /dev/zero >"$DC_SCR_DEVICE" 2>/dev/null
 
-if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ] || [ -e "$RA_BOOT" ]; then
-	echo launcher > "$ACT_GO"
-	rm "$RA_BOOT"
+if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ] || [ -e "$RA_BOOT" ]; then
+	if [ ! -e "/tmp/manual_launch" ]; then
+		echo launcher >"$ACT_GO"
+		rm "$RA_BOOT"
+	fi
 fi
 
-killall -q "$GPTOKEYB_BIN"
-killall -q "$EVSIEVE_BIN"
+killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"
 
-if [ "$DEVICE" = "rg28xx" ]; then
+if [ "$DEVICE_TYPE" = "rg28xx" ]; then
 	fbset -fb /dev/fb0 -g 480 640 480 1280 32
 else
 	fbset -fb /dev/fb0 -g 640 480 640 960 32
 fi
 
 pkill -CONT "$SUSPEND_APP"
-

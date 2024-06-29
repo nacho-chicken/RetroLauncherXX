@@ -1,43 +1,45 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/device/sdl.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+. /opt/muos/script/var/global/setting_general.sh
 
-SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
-SDL_ROTATE=$(parse_ini "$DEVICE_CONFIG" "sdl" "rotation")
-SDL_BLITTER=$(parse_ini "$DEVICE_CONFIG" "sdl" "blitter_disabled")
-
-if [ $# -eq 0 ]; then
-	DIRECT_BOOT=1
-else
-	NAME=$1
-	CORE=$2
-	ROM=$3
-
-	if echo "$CORE" | grep -q "flycast"; then
-		export SDL_NO_SIGNAL_HANDLERS=1
-	fi
-
-	if echo "$CORE" | grep -q "morpheuscast"; then
-		export SDL_NO_SIGNAL_HANDLERS=1
-	fi
-fi
+NAME=$1
+CORE=$2
+ROM=$3
 
 export HOME=/root
 
-export SDL_HQ_SCALER="$SDL_SCALER"
-export SDL_ROTATION="$SDL_ROTATE"
-export SDL_BLITTER_DISABLED="$SDL_BLITTER"
+export SDL_HQ_SCALER="$DC_SDL_SCALER"
+export SDL_ROTATION="$DC_SDL_ROTATION"
+export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
 
-echo "retroarch" > /tmp/fg_proc
-
-if [ -n "$DIRECT_BOOT" ]; then
-	retroarch -v -f -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg"
-else
-	retroarch -v -f -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/$CORE" "$ROM"
+if echo "$CORE" | grep -q "flycast"; then
+	export SDL_NO_SIGNAL_HANDLERS=1
 fi
 
+if echo "$CORE" | grep -q "morpheuscast"; then
+	export SDL_NO_SIGNAL_HANDLERS=1
+fi
+
+echo "retroarch" >/tmp/fg_proc
+
+if [ "$CORE" = nocore ]; then
+	retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" & RA_PID=$!
+else
+	retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$ROM" & RA_PID=$!
+fi
+
+# We have to pause just for a moment to let RetroArch finish loading...
+sleep 5
+
+if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
+	if [ ! -e "/tmp/manual_launch" ]; then
+		retroarch --command LOAD_STATE
+	fi
+fi
+
+wait $RA_PID

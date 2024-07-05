@@ -98,6 +98,14 @@ if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
 fi
 ldconfig -v >"$DC_STO_ROM_MOUNT/MUOS/log/ldconfig.log"
 
+LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
+if [ ! -f "/usr/lib/gamecontrollerdb.txt" ]; then
+	ln -s "/opt/muos/device/$DEVICE_TYPE/control/gamecontrollerdb.txt" "/usr/lib/gamecontrollerdb.txt"
+fi
+if [ ! -f "/usr/lib32/gamecontrollerdb.txt" ]; then
+	ln -s "/opt/muos/device/$DEVICE_TYPE/control/gamecontrollerdb.txt" "/usr/lib32/gamecontrollerdb.txt"
+fi
+
 LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/sdcard.sh &
 /opt/muos/script/mount/usb.sh &
@@ -113,9 +121,6 @@ if [ "$DC_DEV_NETWORK" -eq 1 ] && [ "$GC_NET_ENABLED" -eq 1 ]; then
 	LOGGER "$0" "BOOTING" "Starting Network Services"
 	/opt/muos/script/system/network.sh &
 fi
-
-LOGGER "$0" "BOOTING" "Running dotclean"
-/opt/muos/script/system/dotclean.sh &
 
 LOGGER "$0" "BOOTING" "Running catalogue generator"
 /opt/muos/script/system/catalogue.sh &

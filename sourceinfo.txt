@@ -5,11 +5,11 @@ Code is branched from the following repos and commits:
 
 muxtweakgen/main.c, muxtweakgen/ui/ui_scrTweakGeneral.c:
 https://github.com/MustardOS/frontend/
-94a1baa1172956aed1c31505571c3ac8511e61a9
+afa00c04c7d0f346b6c2ac4718bd8eafe530ac15
 
 script/mux/frontend.sh, script/mux/launch.sh, script/launch/lr-general.sh, script/system/startup.sh:
 https://github.com/MustardOS/internal/
-12380dc6d41127073024552cb581a29154667f40
+69284e36a8510a8f6ef87e0e013fcb7368681152
 
 Build instructions:
 

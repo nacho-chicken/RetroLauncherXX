@@ -28,7 +28,7 @@ such as PortMaster ports or non-Libretro emulators such as PPSSPP.
 Please read the release notes in order to determine whether your device
 and version of muOS is compatible.
 
-If you download the source, `sourceinfo.txt` instead includes information
+If you download the source, `sourceinfo.txt` includes information
 about which muOS commits these files were branched from.
 
 Versions of RetroLauncher XX in the Releases tab are designed for stable
@@ -62,8 +62,8 @@ Close Content" inside RetroArch, in `Settings -> User Interface` and save your
 configuration afterwards.
 
 * _Some cores may or may not work properly when booted from RetroArch instead
-of the muOS content selector._ Particularly, the Flycast and Morpheuscast
-cores.
+of the muOS content selector._ Particularly, the Flycast, Morpheuscast, and
+freej2me cores.
 
 * _Wi-Fi options are not available in RetroArch and must be set from muOS'
 settings._ RetroLauncher is a simple modification to muOS and does not modify
